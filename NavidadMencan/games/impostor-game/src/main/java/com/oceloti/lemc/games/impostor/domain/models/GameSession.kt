@@ -1,39 +1,46 @@
 package com.oceloti.lemc.games.impostor.domain.models
 
-import java.util.Date
+import kotlinx.serialization.Serializable
 
 /**
  * Represents a complete game session of the impostor game
  * 
  * @param id Unique identifier for this game session
- * @param hostPlayer The player hosting this game
- * @param players All players in the game
  * @param gameConfig Configuration settings for this game
+ * @param players All players in the game
  * @param currentState Current state of the game
- * @param currentRound The round currently being played
- * @param rounds List of all completed and current rounds
- * @param statistics Game statistics for tracking
+ * @param currentRound Current round number
+ * @param totalRounds Total number of rounds in this game
+ * @param impostorId The ID of the player who is the impostor
+ * @param secretWords All words available for this game session (6x4 grid)
+ * @param selectedCategory The category of words being used
+ * @param votes List of votes cast in the current round
+ * @param drawings List of drawings made in the current round
  * @param createdAt When this game was created
  * @param updatedAt When this game was last updated
  */
+@Serializable
 data class GameSession(
     val id: GameId,
-    val hostPlayer: Player,
-    val players: List<Player>,
     val gameConfig: GameConfig,
+    val players: List<Player>,
     val currentState: GameState,
-    val currentRound: GameRound?,
-    val rounds: List<GameRound>,
-    val statistics: GameStatistics,
-    val createdAt: Long,
-    val updatedAt: Long
+    val currentRound: Int,
+    val totalRounds: Int,
+    val impostorId: PlayerId,
+    val secretWords: List<String>,
+    val selectedCategory: WordCategory,
+    val votes: List<Vote> = emptyList(),
+    val drawings: List<Drawing> = emptyList(),
+    val createdAt: Long = System.currentTimeMillis(),
+    val updatedAt: Long = System.currentTimeMillis()
 ) {
     /**
      * Check if the game can be started
      */
     fun canStartGame(): Boolean {
-        return players.size >= gameConfig.minPlayers &&
-                currentState is GameState.WaitingForPlayers
+        return players.size >= 3 && // Minimum 3 players for impostor game
+                currentState == GameState.WaitingForPlayers
     }
     
     /**
@@ -51,10 +58,10 @@ data class GameSession(
     }
     
     /**
-     * Get the current impostor if there is one
+     * Get the current impostor
      */
     fun getCurrentImpostor(): Player? {
-        return players.find { it.isImpostor }
+        return players.find { it.id == impostorId }
     }
     
     /**
@@ -62,11 +69,11 @@ data class GameSession(
      */
     fun shouldGameEnd(): Boolean {
         val alivePlayers = getAlivePlayers()
-        val aliveAllies = alivePlayers.filter { !it.isImpostor }
-        val aliveImpostors = alivePlayers.filter { it.isImpostor }
+        val aliveAllies = alivePlayers.filter { it.id != impostorId }
+        val impostor = alivePlayers.find { it.id == impostorId }
         
         // Game ends if impostor is eliminated or all allies are eliminated
-        return aliveImpostors.isEmpty() || aliveAllies.size <= 1
+        return impostor == null || aliveAllies.size <= 1
     }
     
     /**
@@ -76,15 +83,12 @@ data class GameSession(
         if (!shouldGameEnd()) return null
         
         val alivePlayers = getAlivePlayers()
-        val aliveAllies = alivePlayers.filter { !it.isImpostor }
-        val aliveImpostors = alivePlayers.filter { it.isImpostor }
+        val aliveAllies = alivePlayers.filter { it.id != impostorId }
+        val impostor = alivePlayers.find { it.id == impostorId }
         
         return when {
-            aliveImpostors.isEmpty() -> GameWinner.AlliesWin(aliveAllies.map { it.id })
-            aliveAllies.size <= 1 -> {
-                val impostor = aliveImpostors.first()
-                GameWinner.ImpostorWins(impostor.id)
-            }
+            impostor == null -> GameWinner.AlliesWin(aliveAllies.map { it.id })
+            aliveAllies.size <= 1 -> GameWinner.ImpostorWins(impostorId)
             else -> null
         }
     }

@@ -1,14 +1,18 @@
 package com.oceloti.lemc.games.impostor.domain.models
 
+import kotlinx.serialization.Serializable
+
 /**
  * Events that occur over the network during gameplay
  */
+@Serializable
 sealed class NetworkEvent {
     /**
      * A new player has joined the game
      * 
      * @param player The player who joined
      */
+    @Serializable
     data class PlayerJoined(val player: Player) : NetworkEvent()
     
     /**
@@ -16,6 +20,7 @@ sealed class NetworkEvent {
      * 
      * @param playerId The player who left
      */
+    @Serializable
     data class PlayerLeft(val playerId: PlayerId) : NetworkEvent()
     
     /**
@@ -23,6 +28,7 @@ sealed class NetworkEvent {
      * 
      * @param newState The new state of the game
      */
+    @Serializable
     data class GameStateChanged(val newState: GameState) : NetworkEvent()
     
     /**
@@ -30,6 +36,7 @@ sealed class NetworkEvent {
      * 
      * @param drawing The drawing that was submitted
      */
+    @Serializable
     data class PlayerDrawing(val drawing: Drawing) : NetworkEvent()
     
     /**
@@ -37,6 +44,7 @@ sealed class NetworkEvent {
      * 
      * @param vote The vote that was cast
      */
+    @Serializable
     data class VoteCast(val vote: Vote) : NetworkEvent()
     
     /**
@@ -44,6 +52,7 @@ sealed class NetworkEvent {
      * 
      * @param guess The guess that was submitted
      */
+    @Serializable
     data class ImpostorGuessSubmitted(val guess: ImpostorGuess) : NetworkEvent()
     
     /**
@@ -51,6 +60,7 @@ sealed class NetworkEvent {
      * 
      * @param result The result of the round
      */
+    @Serializable
     data class RoundEnded(val result: RoundResult) : NetworkEvent()
     
     /**
@@ -58,6 +68,7 @@ sealed class NetworkEvent {
      * 
      * @param winner Who won the game
      */
+    @Serializable
     data class GameEnded(val winner: GameWinner) : NetworkEvent()
     
     /**
@@ -65,6 +76,7 @@ sealed class NetworkEvent {
      * 
      * @param playerId The player who disconnected
      */
+    @Serializable
     data class PlayerDisconnected(val playerId: PlayerId) : NetworkEvent()
     
     /**
@@ -73,13 +85,15 @@ sealed class NetworkEvent {
      * @param message Error message
      * @param cause Optional cause of the error
      */
-    data class Error(val message: String, val cause: Throwable? = null) : NetworkEvent()
+    @Serializable
+    data class Error(val message: String) : NetworkEvent() // Note: Throwable is not serializable
     
     /**
      * Connection status has changed
      * 
      * @param status New connection status
      */
+    @Serializable
     data class ConnectionStatusChanged(val status: ConnectionStatus) : NetworkEvent()
     
     /**
@@ -87,6 +101,7 @@ sealed class NetworkEvent {
      * 
      * @param game The discoverable game
      */
+    @Serializable
     data class GameDiscovered(val game: DiscoverableGame) : NetworkEvent()
     
     /**
@@ -94,6 +109,7 @@ sealed class NetworkEvent {
      * 
      * @param config New game configuration
      */
+    @Serializable
     data class GameConfigUpdated(val config: GameConfig) : NetworkEvent()
     
     /**
@@ -102,10 +118,27 @@ sealed class NetworkEvent {
      * @param remainingTime Time remaining in seconds
      * @param phase Which phase the timer is for
      */
+    @Serializable
     data class TimerUpdate(
         val remainingTime: Int,
         val phase: TimedPhase
     ) : NetworkEvent()
+    
+    /**
+     * A player has been kicked from the game
+     * 
+     * @param playerId The player who was kicked
+     */
+    @Serializable
+    data class PlayerKicked(val playerId: PlayerId) : NetworkEvent()
+    
+    /**
+     * The game has started
+     * 
+     * @param gameSession The game session that was started
+     */
+    @Serializable
+    data class GameStarted(val gameSession: GameSession) : NetworkEvent()
 }
 
 /**

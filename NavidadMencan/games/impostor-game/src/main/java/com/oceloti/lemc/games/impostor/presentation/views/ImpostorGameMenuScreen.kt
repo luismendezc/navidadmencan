@@ -1,8 +1,10 @@
 package com.oceloti.lemc.games.impostor.presentation.views
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.Settings
@@ -35,9 +37,7 @@ fun ImpostorGameMenuScreen(
     onNavigateBack: () -> Unit = {}
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
+        modifier = Modifier.fillMaxSize()
     ) {
         // Top App Bar
         TopAppBar(
@@ -45,20 +45,23 @@ fun ImpostorGameMenuScreen(
             navigationIcon = {
                 IconButton(onClick = onNavigateBack) {
                     Icon(
-                        imageVector = Icons.Default.ArrowBack,
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Volver al menú principal"
                     )
                 }
             }
         )
         
-        Spacer(modifier = Modifier.height(32.dp))
-        
-        // Game Title
+        // Scrollable content
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Spacer(modifier = Modifier.height(16.dp))
+            
             Text(
                 text = "🕵️‍♂️",
                 style = MaterialTheme.typography.displayLarge
@@ -83,16 +86,15 @@ fun ImpostorGameMenuScreen(
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-        }
+            
+            Spacer(modifier = Modifier.height(32.dp))
         
-        Spacer(modifier = Modifier.height(48.dp))
-        
-        // Menu Options
-        Column(
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth()
-        ) {
+            // Menu Options
+            Column(
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxWidth()
+            ) {
             // Create Game Button
             FilledTonalButton(
                 onClick = onCreateGame,
@@ -169,12 +171,12 @@ fun ImpostorGameMenuScreen(
                     Text("Configuración")
                 }
             }
-        }
-        
-        Spacer(modifier = Modifier.weight(1f))
-        
-        // Game Info
-        Card(
+            }
+            
+            Spacer(modifier = Modifier.height(32.dp))
+            
+            // Game Info
+            Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceVariant
@@ -203,6 +205,9 @@ fun ImpostorGameMenuScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
+        }
+            
+        Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
