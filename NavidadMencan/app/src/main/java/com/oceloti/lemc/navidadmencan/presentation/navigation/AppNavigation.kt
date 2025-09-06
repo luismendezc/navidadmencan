@@ -13,7 +13,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.oceloti.lemc.navidadmencan.presentation.views.WelcomeScreenRoot
+import com.oceloti.lemc.navidadmencan.presentation.views.GameHubScreenRoot
+import com.oceloti.lemc.games.impostor.ImpostorGameEntry
 
 
 @Composable
@@ -36,14 +37,33 @@ private fun AppNav(
 ) {
     NavHost(
         navController = navController,
-        startDestination = Route.Welcome.path,
+        startDestination = Route.GameHub.path,
         modifier = Modifier
             .fillMaxSize()
             .padding(contentPadding)
             .consumeWindowInsets(contentPadding)
     ) {
-        composable(Route.Welcome.path) {
-            WelcomeScreenRoot({})
+        composable(Route.GameHub.path) {
+            GameHubScreenRoot(
+                onNavigateToGame = { game ->
+                    when (game.id) {
+                        "impostor_game" -> {
+                            navController.navigate(Route.ImpostorGame.path)
+                        }
+                        else -> {
+                            // TODO: Navigate to other games
+                        }
+                    }
+                }
+            )
+        }
+        
+        composable(Route.ImpostorGame.path) {
+            ImpostorGameEntry.ImpostorGameScreen(
+                onNavigateBack = {
+                    navController.popBackStack()
+                }
+            )
         }
     }
 }

@@ -21,3 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "NavidadMencan"
 include(":app")
+include(":games:impostor-game")
